@@ -33,14 +33,26 @@ The goal is to maximize the sum of rewards of teammates.
 	- -0.1 when ball enters own team's goal
 	- -0.001 existential penalty
 	
-## Baseline
-DQN
-Hyperparameters:
+## Baseline - Proximal Policy Optimization (PPO)
+PPO model and trainer has been implemented by Marcello Borges https://github.com/marcelloaborges/Soccer-PPO, in which we are using as a baseline model. The code is incorporated under PPO branch of this repository, where the agents can be trained by running main.py. 
 
-TODO: add plot of training reward?
+## DQN
+The Deep-Q Network model has been implemented inside 'dqn/' directory, leveraging the model from Udacity DRL course. The function to train the agents currently lives inside 'Soccer.ipynb' notebook.
 
-## PPO?
+TODO: 
+- Hyperparameter search
+- Adjust network size
+- Experience Replay
+- Performance Evaluation
+
+## Dueling DQN
+TODO:
+- implement model
+- Train and evaluate
 
 ## References
 - Unity ML-Agents Toolkit https://github.com/Unity-Technologies/ml-agents
+- Udacity Deep Reinforcement Learning https://github.com/udacity/deep-reinforcement-learning
+- Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). Proximal policy optimization algorithms. arXiv preprint arXiv:1707.06347.
+- Schaul, T., Quan, J., Antonoglou, I., & Silver, D. (2015). Prioritized experience replay. arXiv preprint arXiv:1511.05952.
 - 
