@@ -434,7 +434,7 @@ class UnityEnvironment(object):
             s = np.reshape(s, [s.shape[0], s.shape[1], 1])
         return s
 
-    def _get_state(self, output: UnityRLOutput) -> (AllBrainInfo, bool):
+    def _get_state(self, output):
         """
         Collects experience information from all external brains in environment at current step.
         :return: a dictionary of BrainInfo objects.
@@ -499,7 +499,7 @@ class UnityEnvironment(object):
         rl_in.command = 1
         return self.wrap_unity_input(rl_in)
 
-    def send_academy_parameters(self, init_parameters: UnityRLInitializationInput) -> UnityRLInitializationOutput:
+    def send_academy_parameters(self, init_parameters):
         inputs = UnityInput()
         inputs.rl_initialization_input.CopyFrom(init_parameters)
         return self.communicator.initialize(inputs).rl_initialization_output
