@@ -504,7 +504,7 @@ class UnityEnvironment(object):
         inputs.rl_initialization_input.CopyFrom(init_parameters)
         return self.communicator.initialize(inputs).rl_initialization_output
 
-    def wrap_unity_input(self, rl_input: UnityRLInput) -> UnityOutput:
+    def wrap_unity_input(self, rl_input):
         result = UnityInput()
         result.rl_input.CopyFrom(rl_input)
         return result
