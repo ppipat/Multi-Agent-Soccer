@@ -14,7 +14,7 @@ dependencies:
   - c-ares=1.15.0=h1de35cc_1
   - ca-certificates=2019.1.23=0
   - certifi=2018.11.29=py36_0
-  - cffi=1.11.5=py36h6174b99_1
+  - cffi
   - dbus=1.13.6=h90a0687_0
   - decorator=4.3.2=py36_0
   - docopt=0.6.2=py36_0
@@ -26,7 +26,7 @@ dependencies:
   - glib=2.56.2=hd9629dc_0
   - h5py=2.9.0=py36h3134771_0
   - hdf5=1.10.4=hfa1e0ec_0
-  - icu=58.2=h4b95b61_1
+  - icu
   - intel-openmp=2019.1=144
   - ipykernel=5.1.0=py36h39e3cac_0
   - ipython=7.2.0=py36h39e3cac_0
@@ -108,7 +108,7 @@ dependencies:
   - werkzeug=0.14.1=py36_0
   - wheel=0.32.3=py36_0
   - widgetsnbextension=3.4.2=py36_0
-  - xz=5.2.4=h1de35cc_4
+  - xz
   - yaml=0.1.7=hc338f04_2
   - zeromq=4.3.1=h0a44026_3
   - zlib=1.2.11=h1de35cc_3
