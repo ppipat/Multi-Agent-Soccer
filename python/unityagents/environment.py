@@ -237,7 +237,7 @@ class UnityEnvironment(object):
                                          for k in self._resetParameters])) + '\n' + \
                '\n'.join([str(self._brains[b]) for b in self._brains])
 
-    def reset(self, train_mode=True, config=None, lesson=None) -> AllBrainInfo:
+    def reset(self, train_mode=True, config=None, lesson=None):
         """
         Sends a signal to reset the unity environment.
         :return: AllBrainInfo  : A Data structure corresponding to the initial reset state of the environment.
@@ -271,7 +271,7 @@ class UnityEnvironment(object):
         else:
             raise UnityEnvironmentException("No Unity environment is loaded.")
 
-    def step(self,  vector_action=None, memory=None, text_action=None) -> AllBrainInfo:
+    def step(self,  vector_action=None, memory=None, text_action=None):
         """
         Provides the environment with an action, moves the environment dynamics forward accordingly, and returns
         observation, state, and reward information to the agent.
@@ -472,7 +472,7 @@ class UnityEnvironment(object):
                 )
         return _data, global_done
 
-    def _generate_step_input(self, vector_action, memory, text_action) -> UnityRLInput:
+    def _generate_step_input(self, vector_action, memory, text_action):
         rl_in = UnityRLInput()
         for b in vector_action:
             n_agents = self._n_agents[b]
@@ -490,7 +490,7 @@ class UnityEnvironment(object):
                 rl_in.command = 0
         return self.wrap_unity_input(rl_in)
 
-    def _generate_reset_input(self, training, config) -> UnityRLInput:
+    def _generate_reset_input(self, training, config):
         rl_in = UnityRLInput()
         rl_in.is_training = training
         rl_in.environment_parameters.CopyFrom(EnvironmentParametersProto())
