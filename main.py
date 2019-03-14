@@ -35,8 +35,8 @@ else:
 pickle_file = 'score_history'
 
 # environment configuration
-env = UnityEnvironment(file_name="Soccer_Env/Soccer.app", no_graphics=True, seed=1)
-#env = UnityEnvironment(file_name="Soccer_env/Soccer.app", no_graphics=False, seed=1)
+#env = UnityEnvironment(file_name="Soccer_Env/Soccer.app", no_graphics=True, seed=1)
+env = UnityEnvironment(file_name="Soccer_env/Soccer_Linux/Soccer.x86", no_graphics=True, seed=1)
 
 # print the brain names
 print(env.brain_names)
