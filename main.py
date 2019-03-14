@@ -18,11 +18,18 @@ from optimizer import Optimizer
 
 import pickle
 
+import time
+
 RESUME_FLAG = True
 TRAIN_FLAG = True
 TEST_FLAG = False
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+if torch.cuda.is_available():
+    print('GPU is is available')
+else:
+    print('GPU is not available')
 
 #define the data storage setup through pickle
 pickle_file = 'score_history'
@@ -119,9 +126,9 @@ striker_optimizer = Optimizer( DEVICE, striker_actor_model, striker_critic_model
     N_STEP, BATCH_SIZE, GAMMA, EPSILON, ENTROPY_WEIGHT, GRADIENT_CLIP)
 
 def ppo_train():
-    
+    start = time.time()
 
-    n_episodes = 500 #was 5000
+    n_episodes = 20 #was 5000
     team_0_window_score = deque(maxlen=100)
     team_0_window_score_wins = deque(maxlen=100)
 
@@ -259,8 +266,13 @@ def ppo_train():
     data_dict = {'episode_history': episode_history, 'team_0_score': team_0_score_history, 'goalie_loss': goalie_loss_history, 
         'striker_loss': striker_loss_history}
 
+    end = time.time()
+
+    print('Avg time per 10 episodes: %.1f (s)' % ((end-start)/(n_episodes/10)))
+
     return data_dict
-    
+
+start = time.time()
 if TRAIN_FLAG:
     # train the agent
     data_dict = ppo_train()
@@ -283,7 +295,8 @@ if TRAIN_FLAG:
     pickle.dump(whole_data_dict, outfile)
     outfile.close()
 
-        
+end = time.time()
+
 
 if TEST_FLAG:
     # test the trained agents
