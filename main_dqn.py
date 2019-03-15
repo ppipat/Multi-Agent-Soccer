@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from dqn.dqn_agent_v2 import Agent
 from collections import deque
+import time
 
 # --------------------- environment configuration ---------------------
 env = UnityEnvironment(file_name="Soccer_Env/Soccer_Linux/Soccer.x86", no_graphics=True, seed=1)
@@ -186,7 +187,7 @@ def dqn(n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.99
             torch.save(s_agent.qnetwork_local.state_dict(), 'checkpoint_striker.pth')
     return scores
 
-n_episodes = 5
+n_episodes = 100
 #n_episodes = 1
 max_t = 100000
 eps_start = 1.0
@@ -204,6 +205,9 @@ eps_decay = 0.9995
 # Train
 eps_start = 0.1
 eps_end = 0.1
+start = time.time()
 scores = dqn(n_episodes, max_t, eps_start, eps_end, eps_decay)
+end = time.time()
 
+print('Avg time per 10 episodes: %.1f' %((end-start)/(n_episodes/10)))
 env.close()
