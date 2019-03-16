@@ -9,7 +9,7 @@ from collections import deque
 
 # --------------------- environment configuration ---------------------
 env = UnityEnvironment(file_name="Soccer_Env/Soccer_Linux/Soccer.x86", no_graphics=True, seed=1)
-#env = UnityEnvironment(file_name="Soccer_env/Soccer.app", no_graphics=False, seed=1)
+#env = UnityEnvironment(file_name="Soccer_env/Soccer.exe", no_graphics=False, seed=1)
 
 # --------------------- print the brain names ---------------------
 print(env.brain_names)
@@ -107,7 +107,8 @@ def dqn(n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.99
         g_scores = np.zeros(num_g_agents)                           # initialize the score (goalies)
         s_scores = np.zeros(num_s_agents)                           # initialize the score (strikers)  
         
-        for t in range(max_t):
+        #for t in range(max_t):
+        while True:
             action_g_0 = g_agent.act(g_states[0], eps)        # always pick state index 0
             action_s_0 = s_agent.act(s_states[0], eps)  
             
@@ -182,13 +183,13 @@ def dqn(n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.99
                                                   np.mean(g_losses_window), \
                                                   np.mean(s_losses_window), \
                                                   ball_reward_val))
-            torch.save(g_agent.qnetwork_local.state_dict(), 'checkpoint_goalie.pth')
-            torch.save(s_agent.qnetwork_local.state_dict(), 'checkpoint_striker.pth')
+            torch.save(g_agent.qnetwork_local.state_dict(), 'goalie_dqn_V1.pth')
+            torch.save(s_agent.qnetwork_local.state_dict(), 'striker_dqn_V1.pth')
     return scores
 
-n_episodes = 5
+n_episodes = 10000
 #n_episodes = 1
-max_t = 100000
+#max_t = 100000
 eps_start = 1.0
 eps_end = 0.1
 eps_decay = 0.9995
@@ -202,8 +203,7 @@ eps_decay = 0.9995
 #s_agent.qnetwork_local.load( STRIKER )
 
 # Train
-eps_start = 0.1
-eps_end = 0.1
-scores = dqn(n_episodes, max_t, eps_start, eps_end, eps_decay)
+#scores = dqn(n_episodes, max_t, eps_start, eps_end, eps_decay)
+scores = dqn(n_episodes, 50000, eps_start, eps_end, eps_decay)
 
 env.close()
