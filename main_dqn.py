@@ -63,12 +63,14 @@ def ball_reward(state):
             4: wall
             5: teammate
             6: opponent
-            7: distance
+            7: ?????
+            8: distance
     """
     reward = 0.0
     # Penalize if ball is not in view
     if not any(state[0::8]):
         reward = -0.03
+        #reward = 0 # Modified version - no penalty
     # Reward for kicking the ball
     else:
         idx = np.where(state[0::8])[0] # check which ray sees the ball
@@ -77,6 +79,34 @@ def ball_reward(state):
             reward = 0.3
 
     return reward
+
+def modify_reward(reward):
+    """
+    Modify reward of striker. 
+    Params
+    ======
+        reward: value of current reward 
+    """
+    # CASE 1 ----------------
+    # Nominal reward - return the same reward
+    new_reward = reward
+    
+    # CASE 2 ----------------
+    # Aggressive striker - remove penalty for being scored on
+    if reward < -0.1:
+        new_reward = reward + 0.1
+    
+    # CASE 3 ----------------
+    # Aggressive striker - add more penalty for being scored on
+#    if reward < -0.1:
+#        new_reward = reward - 0.4
+    
+    # ============================= DEBUG ONLY =============================
+#    print("reward = ", reward)
+#    print("new_reward = ", new_reward)
+    # ============================= DEBUG ONLY =============================
+    
+    return new_reward
 
 # --------------------- DQN trainer ---------------------
 def dqn(n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995):
@@ -130,16 +160,24 @@ def dqn(n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.99
             g_next_states = env_info[g_brain_name].vector_observations         
             s_next_states = env_info[s_brain_name].vector_observations
             
+            # check if episode finished
+            done = np.any(env_info[g_brain_name].local_done)
+            
             # get reward and update scores
             g_rewards = env_info[g_brain_name].rewards
             s_rewards = env_info[s_brain_name].rewards
+            
+            # Modify RED striker reward -Only when goal is scored
+            if done:
+                new_s_reward = modify_reward(s_rewards[0])
+                s_rewards[0] = new_s_reward
+            
+            # Update scores
             g_scores += g_rewards
             s_scores += s_rewards
             
+            # Add in ball reward for striker
             ball_reward_val += ball_reward(s_states[0])
-            
-            # check if episode finished
-            done = np.any(env_info[g_brain_name].local_done)
             
             # store experiences
             g_agent.step(g_states[0], action_g_0, g_rewards[0], 
@@ -184,14 +222,14 @@ def dqn(n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.99
                                                   np.mean(g_losses_window), \
                                                   np.mean(s_losses_window), \
                                                   ball_reward_val))
-            torch.save(g_agent.qnetwork_local.state_dict(), 'goalie_dqn_V1.pth')
-            torch.save(s_agent.qnetwork_local.state_dict(), 'striker_dqn_V1.pth')
+            
+            # TODO: ---------- CHANGE OUTPUT FILE NAMES ----------
+            torch.save(g_agent.qnetwork_local.state_dict(), 'goalie_dqn_V2.pth')
+            torch.save(s_agent.qnetwork_local.state_dict(), 'striker_dqn_V2.pth')
     return scores
 
 
 n_episodes = 10000
-#n_episodes = 1
-#max_t = 100000
 eps_start = 1.0
 eps_end = 0.1
 eps_decay = 0.9995
