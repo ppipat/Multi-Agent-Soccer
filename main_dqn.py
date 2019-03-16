@@ -9,7 +9,7 @@ from collections import deque
 
 # --------------------- environment configuration ---------------------
 env = UnityEnvironment(file_name="Soccer_Env/Soccer_Linux/Soccer.x86", no_graphics=True, seed=1)
-#env = UnityEnvironment(file_name="Soccer_env/Soccer.exe", no_graphics=False, seed=1)
+#env = UnityEnvironment(file_name="Soccer_Env/Soccer.exe", no_graphics=False, seed=1)
 
 # --------------------- print the brain names ---------------------
 print(env.brain_names)
