@@ -11,6 +11,7 @@ from model import ActorModel, CriticModel
 from agent import Agent as PpoAgent
 
 env = UnityEnvironment(file_name="Soccer_Env/Soccer.app", no_graphics=True, seed=1)
+#env = UnityEnvironment(file_name="Soccer_Env/Soccer_Linux/Soccer.x86", no_graphics=True, seed=1)
 
 # print the brain names
 print(env.brain_names)
