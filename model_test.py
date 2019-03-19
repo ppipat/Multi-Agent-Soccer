@@ -51,8 +51,8 @@ print('There are {} striker agents. Each receives a state with length: {}'.forma
 
 # Load trained agents and run
 # DQN
-# g_agent_red = Agent(state_size=g_state_size, action_size=g_action_size, seed=0)
-# s_agent_red = Agent(state_size=s_state_size, action_size=s_action_size, seed=0)
+g_agent_red = Agent(state_size=g_state_size, action_size=g_action_size, seed=0)
+s_agent_red = Agent(state_size=s_state_size, action_size=s_action_size, seed=0)
 g_agent_blue = Agent(state_size=g_state_size, action_size=g_action_size, seed=0)
 s_agent_blue = Agent(state_size=s_state_size, action_size=s_action_size, seed=0)
 # PPO
@@ -65,8 +65,8 @@ N_STEP = 8
 
 # RED TEAM -------------------------------------
 # DQN_base ----
-GOALIE_red = './trained_models/goalie_dqn_V2_mod.pth'
-STRIKER_red = './trained_models/striker_dqn_V2_mod.pth'
+GOALIE_red = './trained_models/goalie_dqn_run1.pth'
+STRIKER_red = './trained_models/striker_dqn_run1.pth'
 # DQN_1 ----
 # GOALIE_red = './trained_models/goalie_dqn_V1.pth'
 # STRIKER_red = './trained_models/striker_dqn_V1.pth'
@@ -80,13 +80,13 @@ STRIKER_red = './trained_models/striker_dqn_V2_mod.pth'
 # GOALIE_red = './trained_models/goalie_dqn_V2_mod.pth'
 # STRIKER_red = './trained_models/striker_dqn_V2_mod.pth'
 
-# g_agent_red.qnetwork_local.load (GOALIE_red )
-# s_agent_red.qnetwork_local.load( STRIKER_red )
+g_agent_red.qnetwork_local.load (GOALIE_red )
+s_agent_red.qnetwork_local.load( STRIKER_red )
 # PPO_1 ----
 # goalie_actor_model.load( './trained_models/checkpoint_goalie_actor_v1.pth' )
 # striker_actor_model.load( './trained_models/checkpoint_striker_actor_v1.pth' )
-g_agent_red = PpoAgent( DEVICE, 0, goalie_actor_model, N_STEP )
-s_agent_red = PpoAgent( DEVICE, 0, striker_actor_model, N_STEP )
+# g_agent_red = PpoAgent( DEVICE, 0, goalie_actor_model, N_STEP )
+# s_agent_red = PpoAgent( DEVICE, 0, striker_actor_model, N_STEP )
 
 # BLUE TEAM -------------------------------------
 # DQN_base
@@ -102,8 +102,8 @@ s_agent_red = PpoAgent( DEVICE, 0, striker_actor_model, N_STEP )
 # GOALIE_blue = './trained_models/goalie_dqn_V2.pth'
 # STRIKER_blue = './trained_models/striker_dqn_V2.pth'
 # DQN_2_mod ----
-GOALIE_blue = './trained_models/goalie_dqn_V1.pth'
-STRIKER_blue = './trained_models/striker_dqn_V1.pth'
+GOALIE_blue = './trained_models/goalie_dqn_run1.pth'
+STRIKER_blue = './trained_models/striker_dqn_run1.pth'
 
 g_agent_blue.qnetwork_local.load (GOALIE_blue )
 s_agent_blue.qnetwork_local.load( STRIKER_blue )
@@ -126,11 +126,11 @@ for i in range(n_episodes):                                       # play game fo
     s_scores = np.zeros(num_s_agents)                      # initialize the score (strikers)
     while True:
         # RED TEAM actions
-#         action_g_0 = g_agent_red.act(g_states[0], 0)       # always pick state index 0 for red
-#         action_s_0 = s_agent_red.act(s_states[0], 0)  
+        action_g_0 = g_agent_red.act(g_states[0], 0)       # always pick state index 0 for red
+        action_s_0 = s_agent_red.act(s_states[0], 0)  
         # Get action for PPO agent
-        action_g_0, _ = g_agent_red.act( g_states[0] )
-        action_s_0, _ = s_agent_red.act( s_states[0] )
+#        action_g_0, _ = g_agent_red.act( g_states[0] )
+#        action_s_0, _ = s_agent_red.act( s_states[0] )
 
         # BLUE TEAM actions
         # ----- RANDOM -----
