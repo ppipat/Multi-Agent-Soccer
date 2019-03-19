@@ -2,3 +2,7 @@
 unity-environment.log
 
 *.pyc
+
+*.log
+
+\.DS_Store
