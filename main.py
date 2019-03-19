@@ -20,7 +20,7 @@ import pickle
 
 import time
 
-RESUME_FLAG = True
+RESUME_FLAG = False
 TRAIN_FLAG = True
 TEST_FLAG = False
 
@@ -35,8 +35,8 @@ else:
 pickle_file = 'score_history'
 
 # environment configuration
-#env = UnityEnvironment(file_name="Soccer_Env/Soccer.app", no_graphics=True, seed=1)
-env = UnityEnvironment(file_name="Soccer_Env/Soccer_Linux/Soccer.x86", no_graphics=True, seed=1)
+env = UnityEnvironment(file_name="Soccer_Env/Soccer.app", no_graphics=True, seed=1)
+#env = UnityEnvironment(file_name="Soccer_Env/Soccer_Linux/Soccer.x86", no_graphics=True, seed=1)
 
 # print the brain names
 print(env.brain_names)
@@ -86,10 +86,10 @@ STRIKER_LR = 1e-5 #was 1e-4
 
 
 
-CHECKPOINT_GOALIE_ACTOR = './checkpoint_goalie_actor.pth'
-CHECKPOINT_GOALIE_CRITIC = './checkpoint_goalie_critic.pth'
-CHECKPOINT_STRIKER_ACTOR = './checkpoint_striker_actor.pth'
-CHECKPOINT_STRIKER_CRITIC = './checkpoint_striker_critic.pth'
+CHECKPOINT_GOALIE_ACTOR = './checkpoint_goalie_actor_v1.pth'
+CHECKPOINT_GOALIE_CRITIC = './checkpoint_goalie_critic_v1.pth'
+CHECKPOINT_STRIKER_ACTOR = './checkpoint_striker_actor_v1.pth'
+CHECKPOINT_STRIKER_CRITIC = './checkpoint_striker_critic._v1.pth'
 
 # Actors and Critics
 GOALIE_0_KEY = 0
@@ -125,17 +125,74 @@ striker_0 = Agent( DEVICE, STRIKER_0_KEY, striker_actor_model, N_STEP )
 striker_optimizer = Optimizer( DEVICE, striker_actor_model, striker_critic_model, striker_optim,  
     N_STEP, BATCH_SIZE, GAMMA, EPSILON, ENTROPY_WEIGHT, GRADIENT_CLIP)
 
+
+def ball_reward(state):
+    """
+    Params
+    ======
+        state : current state of striker, 3 stacked 112 element vector
+            1: ball
+            2: opponent's goal
+            3: own goal
+            4: wall
+            5: teammate
+            6: opponent
+            7: ?????
+            8: distance
+    """
+    reward = 0.0
+    # Penalize if ball is not in view
+    if not any(state[0::8]):
+        reward = -0.03
+        #reward = 0 # Modified version - no penalty
+    # Reward for kicking the ball
+    else:
+        idx = np.where(state[0::8])[0] # check which ray sees the ball
+        distance = state[idx*8 + 7] # get the corresponding distance to ball
+        if (np.amin(distance) <= 0.03): # Just picking some thresholds for now.
+            reward = 0.3
+
+    return reward
+
+def modify_reward(reward):
+    """
+    Modify reward of striker. 
+    Params
+    ======
+        reward: value of current reward 
+    """
+    # CASE 1 ----------------
+    # Nominal reward - return the same reward
+    new_reward = reward
+    
+    # CASE 2 ----------------
+    # Aggressive striker - remove penalty for being scored on
+#    if reward < -0.1:
+#        new_reward = reward + 0.1
+    
+    # CASE 3 ----------------
+    # Aggressive striker - add more penalty for being scored on
+    # if reward < -0.1:
+    #     new_reward = reward - 0.5
+    
+    # ============================= DEBUG ONLY =============================
+#    print("reward = ", reward)
+#    print("new_reward = ", new_reward)
+    # ============================= DEBUG ONLY =============================
+    
+    return new_reward
+
 def ppo_train():
     start = time.time()
 
     n_episodes = 20 #was 5000
-    team_0_window_score = deque(maxlen=100)
-    team_0_window_score_wins = deque(maxlen=100)
+    team_0_window_score = deque(maxlen=200)
+    team_0_window_score_wins = deque(maxlen=200)
 
-    team_1_window_score = deque(maxlen=100)
-    team_1_window_score_wins = deque(maxlen=100)
+    team_1_window_score = deque(maxlen=200)
+    team_1_window_score_wins = deque(maxlen=200)
 
-    draws = deque(maxlen=100)
+    draws = deque(maxlen=200)
 
     episode_history = -1000 * np.ones(n_episodes)
     team_0_score_history = -1000 * np.ones(n_episodes)
@@ -152,6 +209,8 @@ def ppo_train():
         goalies_scores = np.zeros(n_goalie_agents)                   # initialize the score (goalies)
         strikers_scores = np.zeros(n_striker_agents)                 # initialize the score (strikers)         
 
+
+        ball_reward_val = 0.0
         steps = 0
         
         while True:       
@@ -187,6 +246,12 @@ def ppo_train():
             # check if episode finished
             done = np.any(env_info[g_brain_name].local_done)
 
+            # Modify RED striker reward -Only when goal is scored
+            if done:
+                new_s_reward = modify_reward(strikers_rewards[0])
+                strikers_rewards[0] = new_s_reward
+
+            
             # store experiences
             goalie_0_reward = goalies_rewards[goalie_0.KEY]
             goalie_0.step( 
@@ -216,7 +281,7 @@ def ppo_train():
                     ), axis=0 ),               
                 action_striker_0,
                 log_prob_striker_0,
-                striker_0_reward
+                striker_0_reward + ball_reward(strikers_states[0])
             )
 
 
@@ -249,18 +314,39 @@ def ppo_train():
 
         draws.append( team_0_score == team_1_score )
         
-        print('Episode: {} \tSteps: \t{} \tGoalie Loss: \t {:.10f} \tStriker Loss: \t {:.10f}'.format( episode + 1, steps, goalie_loss, striker_loss ))
+        '''
+        print('Episode: {} \tSteps: \t{} \tGoalie Loss: \t {:.10f} \tStriker Loss: \t {:.10f}'.format( episode + 1, steps, goalie_loss, striker_loss ), end='')
         print('\tRed Wins: \t{} \tScore: \t{:.5f} \tAvg: \t{:.2f}'.format( np.count_nonzero(team_0_window_score_wins), team_0_score, np.sum(team_0_window_score) ))
         print('\tBlue Wins: \t{} \tScore: \t{:.5f} \tAvg: \t{:.2f}'.format( np.count_nonzero(team_1_window_score_wins), team_1_score, np.sum(team_1_window_score) ))
         print('\tDraws: \t{}'.format( np.count_nonzero(draws) ))
+        '''
+
+
+        print('\rEpisode {}\tAverage Score: {:.2f}\t Red Wins: ' \
+                  '{}\t Blue Wins: {}' \
+                  '\t Draws: {}'.format(episode + 1, \
+                                                  np.mean(team_0_score), \
+                                                  np.count_nonzero(team_0_window_score_wins), \
+                                                  np.count_nonzero(team_1_window_score_wins), \
+                                                  np.count_nonzero(draws)), end="")
+        #print(s_states[0][0:56])
+        if (episode+1)% 1000 == 0:
+            print(' ')
+            print('Episode {}\tAverage Score: {:.2f}\t Red Wins: ' \
+                  '{}\t Blue Wins: {}' \
+                  '\t Draws: {}'.format(episode + 1, \
+                                                  np.mean(team_0_score), \
+                                                  np.count_nonzero(team_0_window_score_wins), \
+                                                  np.count_nonzero(team_1_window_score_wins), \
+                                                  np.count_nonzero(draws)), end=' ')
 
         episode_history[episode] = episode + 1
         team_0_score_history[episode] = team_0_score
         goalie_loss_history[episode] = goalie_loss
         striker_loss_history[episode] = striker_loss
         step_history[episode] = steps
-        print('Test ' + str(team_0_score))
-        if np.count_nonzero( team_0_window_score_wins ) >= 95:
+        #print('Test ' + str(team_0_score))
+        if np.count_nonzero( team_0_window_score_wins ) >= 495:
             break
 
     data_dict = {'episode_history': episode_history, 'team_0_score': team_0_score_history, 'goalie_loss': goalie_loss_history, 
@@ -268,7 +354,7 @@ def ppo_train():
 
     end = time.time()
 
-    print('Avg time per 10 episodes: %.1f (s)' % ((end-start)/(n_episodes/10)))
+    print('\nAvg time per 10 episodes: %.1f (s)' % ((end-start)/(n_episodes/10)))
 
     return data_dict
 
