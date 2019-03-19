@@ -93,13 +93,13 @@ def modify_reward(reward):
     
     # CASE 2 ----------------
     # Aggressive striker - remove penalty for being scored on
-#    if reward < -0.1:
-#        new_reward = reward + 0.1
+    if reward < -0.1:
+        new_reward = reward + 0.1
     
     # CASE 3 ----------------
     # Aggressive striker - add more penalty for being scored on
-    if reward < -0.1:
-        new_reward = reward - 0.5
+#    if reward < -0.1:
+#        new_reward = reward - 0.5
     
     # ============================= DEBUG ONLY =============================
 #    print("reward = ", reward)
@@ -224,8 +224,8 @@ def dqn(n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.99
                                                   ball_reward_val))
             
             # TODO: ---------- CHANGE OUTPUT FILE NAMES ----------
-            torch.save(g_agent.qnetwork_local.state_dict(), 'goalie_dqn_V3.pth')
-            torch.save(s_agent.qnetwork_local.state_dict(), 'striker_dqn_V3.pth')
+            torch.save(g_agent.qnetwork_local.state_dict(), 'goalie_dqn_V2_mod.pth')
+            torch.save(s_agent.qnetwork_local.state_dict(), 'striker_dqn_V2_mod.pth')
     return scores
 
 
