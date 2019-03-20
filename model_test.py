@@ -134,11 +134,11 @@ for i in range(n_episodes):                                       # play game fo
 
         # BLUE TEAM actions
         # ----- RANDOM -----
-        action_g_1 = np.asarray( [np.random.choice(g_action_size)] ) 
-        action_s_1 = np.asarray( [np.random.choice(s_action_size)] )
+#        action_g_1 = np.asarray( [np.random.choice(g_action_size)] ) 
+#        action_s_1 = np.asarray( [np.random.choice(s_action_size)] )
         # ----- Trained -----
-#         action_g_1 = g_agent_blue.act(g_states[1], 0)      # always pick state index 1 for blue
-#         action_s_1 = s_agent_blue.act(s_states[1], 0)
+        action_g_1 = g_agent_blue.act(g_states[1], 0)      # always pick state index 1 for blue
+        action_s_1 = s_agent_blue.act(s_states[1], 0)
 
         # Combine actions
         actions_g = np.array( (action_g_0, action_g_1) )                                    
